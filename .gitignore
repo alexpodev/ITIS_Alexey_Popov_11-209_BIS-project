@@ -221,3 +221,6 @@ index.txt
 
 #tokenisation
 /tokens_lemmas
+
+#boolean_search
+inverted_index.json
