@@ -1,6 +1,6 @@
 # Web Crawler for KPFU Media News
 
-A Python-based web crawler designed to extract and save news articles from the KPFU Media portal (media.kpfu.ru).
+A Python-based web crawler designed to extract and save news articles from the KPFU Media portal (media.kpfu.ru), with text processing and lemmatization capabilities.
 
 ## Table of Contents
 
@@ -9,6 +9,8 @@ A Python-based web crawler designed to extract and save news articles from the K
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
+    - [Crawler](#crawler)
+    - [Lemmatizator](#lemmatizator)
 - [Configuration](#configuration)
 - [Output Structure](#output-structure)
 - [Project Information](#project-information)
@@ -21,6 +23,8 @@ This crawler automatically navigates through the KPFU Media news section, collec
 
 ## Features
 
+### Crawler
+
 - **Automatic Pagination**: Traverses multiple pages of the news archive
 - **Content Filtering**: Skips non-text pages (images, PDFs, documents, etc.)
 - **Language Detection**: Prioritizes pages with Cyrillic or Latin text content
@@ -28,12 +32,20 @@ This crawler automatically navigates through the KPFU Media news section, collec
 - **Index Generation**: Creates an index file mapping saved pages to their source URLs
 - **Configurable Limits**: Set minimum number of pages to collect
 
+### Lemmatizator
+
+- **Tokenization**: Extracts individual words from HTML documents
+- **Noise Filtering**: Removes duplicates, stop words, numbers, and non-Russian words
+- **Lemmatization**: Groups tokens by their dictionary form (lemma) using pymorphy3
+- **Per-page Processing**: Generates separate token and lemma files for each crawled page
+
 ## Requirements
 
 - Python 3.6 or higher
 - Required packages:
     - `requests`
     - `beautifulsoup4`
+    - `pymorphy3` (for lemmatization)
 
 ## Installation
 
@@ -69,6 +81,8 @@ This crawler automatically navigates through the KPFU Media news section, collec
 
 ## Usage
 
+### Crawler
+
 Run the crawler:
 
 ```bash
@@ -82,6 +96,26 @@ The crawler will:
 3. Extract article URLs
 4. Download and save article content
 5. Generate an index file
+
+### Lemmatizator
+
+Run the lemmatizator:
+
+```bash
+python3 lemmatizator.py
+```
+
+The lemmatizator will:
+
+1. Read all HTML files from `crawl_output/`
+2. Extract and filter tokens (remove noise, duplicates, stop words)
+3. Lemmatize tokens using pymorphy3
+4. Generate per-page output files in `tokens_lemmas/`
+
+**Output files:**
+
+- `tokens_page_XXXX.txt` — unique tokens, one per line
+- `lemmas_page_XXXX.txt` — lemma groups in format: `<lemma> <token1> <token2> ...`
 
 ## Configuration
 
@@ -98,16 +132,23 @@ Edit the constants at the top of `crawler.py` to customize behavior:
 
 ## Output Structure
 
-After execution, the following will be created:
+After running the crawler and lemmatizator:
 
 ```
 project/
-├── crawl_output/          # Directory containing saved pages
+├── crawl_output/              # Directory containing saved HTML pages
 │   ├── page_0001.txt
 │   ├── page_0002.txt
 │   └── ...
-├── index.txt              # Index mapping page numbers to URLs
-└── crawler.py             # Main script
+├── tokens_lemmas/             # Directory containing processed tokens and lemmas
+│   ├── tokens_page_0001.txt
+│   ├── lemmas_page_0001.txt
+│   ├── tokens_page_0002.txt
+│   ├── lemmas_page_0002.txt
+│   └── ...
+├── index.txt                  # Index mapping page numbers to URLs
+├── crawler.py                 # Main crawler script
+└── lemmatizator.py            # Text processing and lemmatization script
 ```
 
 ### Index File Format
@@ -119,6 +160,28 @@ The `index.txt` file contains tab-separated entries:
 #====================================
 1    https://media.kpfu.ru/news/article-1
 2    https://media.kpfu.ru/news/article-2
+```
+
+### Tokens File Format
+
+Each `tokens_page_XXXX.txt` contains one token per line (lowercase, no duplicates):
+
+```
+объявлен
+конкурс
+гранты
+президента
+```
+
+### Lemmas File Format
+
+Each `lemmas_page_XXXX.txt` contains lemma groups:
+
+```
+объявить объявлен
+конкурс конкурс
+гранты грантов
+президент президента президенту
 ```
 
 ## Project Information
