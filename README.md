@@ -11,6 +11,8 @@ A Python-based web crawler designed to extract and save news articles from the K
 - [Usage](#usage)
     - [Crawler](#crawler)
     - [Lemmatizator](#lemmatizator)
+    - [Inverted Index](#inverted-index)
+    - [Boolean Search](#boolean-search)
 - [Configuration](#configuration)
 - [Output Structure](#output-structure)
 - [Project Information](#project-information)
@@ -39,6 +41,20 @@ This crawler automatically navigates through the KPFU Media news section, collec
 - **Lemmatization**: Groups tokens by their dictionary form (lemma) using pymorphy3
 - **Per-page Processing**: Generates separate token and lemma files for each crawled page
 
+### Inverted Index
+
+- **Builds inverted index**: Maps each lemma to document IDs where it appears
+- **JSON output**: Stores index in JSON format with numeric document IDs
+- **Fast lookups**: Enables efficient Boolean search operations
+
+### Boolean Search
+
+- **AND operator**: Find documents containing all terms
+- **OR operator**: Find documents containing any term
+- **NOT operator**: Exclude documents containing a term (unary and binary)
+- **Parentheses support**: Complex nested queries like `(A AND B) OR (C AND D)`
+- **Interactive mode**: Accepts queries at runtime via command line
+
 ## Requirements
 
 - Python 3.6 or higher
@@ -46,6 +62,7 @@ This crawler automatically navigates through the KPFU Media news section, collec
     - `requests`
     - `beautifulsoup4`
     - `pymorphy3` (for lemmatization)
+    - `nltk` (for stop words)
 
 ## Installation
 
@@ -117,6 +134,60 @@ The lemmatizator will:
 - `tokens_page_XXXX.txt` — unique tokens, one per line
 - `lemmas_page_XXXX.txt` — lemma groups in format: `<lemma> <token1> <token2> ...`
 
+### Inverted Index
+
+Run the inverted index builder:
+
+```bash
+python3 inv_term.py
+```
+
+This will:
+
+1. Read all lemma files from `tokens_lemmas/`
+2. Build an inverted index mapping lemmas to document IDs
+3. Save the index as `inverted_index.json`
+
+**Output format:**
+
+```json
+{
+  "конкурс": [1, 4, 17, 20, 23],
+  "грант": [1, 17, 51, 87, 90],
+  ...
+}
+```
+
+### Boolean Search
+
+Run the Boolean search engine:
+
+```bash
+python3 boolean_search.py
+```
+
+**Supported operators:**
+
+| Operator | Example | Description |
+|----------|---------|-------------|
+| `AND` | `конкурс AND грант` | Documents containing both terms |
+| `OR` | `конкурс OR грант` | Documents containing either term |
+| `NOT` | `конкурс NOT грант` | Documents with first term, without second |
+| `NOT` (unary) | `NOT конкурс` | All documents except those with term |
+| `()` | `(A AND B) OR C` | Grouping for complex queries |
+
+**Example queries:**
+
+```
+Search> университет
+Search> конкурс AND грант
+Search> конкурс OR грант
+Search> конкурс NOT грант
+Search> NOT конкурс
+Search> (конкурс AND грант) OR (президент AND российская)
+Search> quit
+```
+
 ## Configuration
 
 Edit the constants at the top of `crawler.py` to customize behavior:
@@ -132,7 +203,7 @@ Edit the constants at the top of `crawler.py` to customize behavior:
 
 ## Output Structure
 
-After running the crawler and lemmatizator:
+After running all components:
 
 ```
 project/
@@ -147,8 +218,11 @@ project/
 │   ├── lemmas_page_0002.txt
 │   └── ...
 ├── index.txt                  # Index mapping page numbers to URLs
+├── inverted_index.json        # JSON inverted index (lemma → [doc_ids])
 ├── crawler.py                 # Main crawler script
-└── lemmatizator.py            # Text processing and lemmatization script
+├── lemmatizator.py            # Text processing and lemmatization script
+├── inv_term.py                # Inverted index builder
+└── boolean_search.py          # Boolean search engine
 ```
 
 ### Index File Format
@@ -194,3 +268,15 @@ Each `lemmas_page_XXXX.txt` contains lemma groups:
 ---
 
 _Last Updated: March 4, 2026_
+
+## Changelog
+
+### v1.0.0 - March 4, 2026
+
+**New Features:**
+- Web crawler with pagination support
+- HTML content extraction and filtering
+- Tokenization and lemmatization (pymorphy3)
+- Per-page token and lemma output files
+- Inverted index builder (JSON format)
+- Boolean search engine (AND, OR, NOT, parentheses)
