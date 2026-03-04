@@ -218,3 +218,6 @@ __marimo__/
 # crawler
 index.txt
 /crawl_output
+
+#tokenisation
+/tokens_lemmas
