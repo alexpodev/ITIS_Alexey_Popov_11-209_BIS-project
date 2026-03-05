@@ -13,6 +13,7 @@ A Python-based web crawler designed to extract and save news articles from the K
     - [Lemmatizator](#lemmatizator)
     - [Inverted Index](#inverted-index)
     - [Boolean Search](#boolean-search)
+    - [TF-IDF](#tf-idf)
 - [Configuration](#configuration)
 - [Output Structure](#output-structure)
 - [Project Information](#project-information)
@@ -54,6 +55,13 @@ This crawler automatically navigates through the KPFU Media news section, collec
 - **NOT operator**: Exclude documents containing a term (unary and binary)
 - **Parentheses support**: Complex nested queries like `(A AND B) OR (C AND D)`
 - **Interactive mode**: Accepts queries at runtime via command line
+
+### TF-IDF
+
+- **Term Frequency (TF)**: Computes TF for each term as the ratio of term occurrences to total terms in the document
+- **Inverse Document Frequency (IDF)**: Computes IDF for each term using log(N/df)
+- **Lemma-based TF-IDF**: Computes TF and IDF for lemmatized forms
+- **Per-document output**: Generates separate TF-IDF files for each crawled document
 
 ## Requirements
 
@@ -168,13 +176,13 @@ python3 boolean_search.py
 
 **Supported operators:**
 
-| Operator | Example | Description |
-|----------|---------|-------------|
-| `AND` | `конкурс AND грант` | Documents containing both terms |
-| `OR` | `конкурс OR грант` | Documents containing either term |
-| `NOT` | `конкурс NOT грант` | Documents with first term, without second |
-| `NOT` (unary) | `NOT конкурс` | All documents except those with term |
-| `()` | `(A AND B) OR C` | Grouping for complex queries |
+| Operator      | Example             | Description                               |
+| ------------- | ------------------- | ----------------------------------------- |
+| `AND`         | `конкурс AND грант` | Documents containing both terms           |
+| `OR`          | `конкурс OR грант`  | Documents containing either term          |
+| `NOT`         | `конкурс NOT грант` | Documents with first term, without second |
+| `NOT` (unary) | `NOT конкурс`       | All documents except those with term      |
+| `()`          | `(A AND B) OR C`    | Grouping for complex queries              |
 
 **Example queries:**
 
@@ -186,6 +194,40 @@ Search> конкурс NOT грант
 Search> NOT конкурс
 Search> (конкурс AND грант) OR (президент AND российская)
 Search> quit
+```
+
+### TF-IDF
+
+Run the TF-IDF computation:
+
+```bash
+python3 tf_idf.py
+```
+
+This will:
+
+1. Load tokens and lemmas from `tokens_lemmas/`
+2. Compute TF for each term (term occurrences / total terms in document)
+3. Compute IDF for each term using log(N/df)
+4. Compute TF-IDF as TF × IDF
+5. Generate per-document output files for terms and lemmas
+
+**Output files:**
+
+- `tfidf_output/terms/terms_tfidf_page_XXXX.txt` — TF-IDF for terms
+- `tfidf_output/lemmas/lemmas_tfidf_page_XXXX.txt` — TF-IDF for lemmas
+
+**Output format:**
+
+```
+<term> <idf> <tf-idf>
+```
+
+Example:
+
+```
+аспекты 3.506558 0.008766
+басырова 1.714798 0.004287
 ```
 
 ## Configuration
@@ -217,6 +259,13 @@ project/
 │   ├── tokens_page_0002.txt
 │   ├── lemmas_page_0002.txt
 │   └── ...
+├── tfidf_output/              # Directory containing TF-IDF output
+│   ├── terms/                 # TF-IDF for terms
+│   │   ├── terms_tfidf_page_0001.txt
+│   │   └── ...
+│   └── lemmas/                # TF-IDF for lemmas
+│       ├── lemmas_tfidf_page_0001.txt
+│       └── ...
 ├── index.txt                  # Index mapping page numbers to URLs
 ├── inverted_index.json        # JSON inverted index (lemma → [doc_ids])
 ├── crawler.py                 # Main crawler script
@@ -268,15 +317,3 @@ Each `lemmas_page_XXXX.txt` contains lemma groups:
 ---
 
 _Last Updated: March 4, 2026_
-
-## Changelog
-
-### v1.0.0 - March 4, 2026
-
-**New Features:**
-- Web crawler with pagination support
-- HTML content extraction and filtering
-- Tokenization and lemmatization (pymorphy3)
-- Per-page token and lemma output files
-- Inverted index builder (JSON format)
-- Boolean search engine (AND, OR, NOT, parentheses)
