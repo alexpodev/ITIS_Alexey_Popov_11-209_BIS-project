@@ -224,3 +224,6 @@ index.txt
 
 #boolean_search
 inverted_index.json
+
+#tf-idf
+/tfidf_output
