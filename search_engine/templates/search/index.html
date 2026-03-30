@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Векторный поиск</title>
+		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+		{% load static %}
+		<link rel="stylesheet" href="{% static 'search/css/style.css' %}" />
+	</head>
+	<body>
+		<div class="container">
+			<header>
+				<h1>🔍 GnomeSearch</h1>
+				<p class="subtitle">
+					Поиск документов на основе TF-IDF и косинусного сходства
+				</p>
+				<div class="stats">
+					<span>Документов: <strong>{{ num_docs }}</strong></span>
+					<span
+						>Уникальных лемм:
+						<strong>{{ num_vectors }}</strong></span
+					>
+				</div>
+			</header>
+
+			<main>
+				<div class="search-box">
+					<form
+						hx-get="{% url 'search_results' %}"
+						hx-target="#results"
+						hx-trigger="submit"
+						class="search-form"
+					>
+						<input
+							type="text"
+							name="q"
+							id="search-input"
+							placeholder="Введите поисковый запрос..."
+							autocomplete="off"
+							required
+						/>
+						<button type="submit" class="search-btn">Найти</button>
+					</form>
+				</div>
+
+				<div id="results" class="results-container">
+					<!-- Search results will be loaded here via HTMX -->
+				</div>
+			</main>
+
+			<footer>
+				<p>Векторный поиск KFU Media &copy; 2026</p>
+			</footer>
+		</div>
+
+		<script src="{% static 'search/js/main.js' %}"></script>
+	</body>
+</html>

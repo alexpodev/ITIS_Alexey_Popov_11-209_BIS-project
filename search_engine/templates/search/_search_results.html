@@ -1,0 +1,50 @@
+{% if results %}
+    <div class="results-info">
+        <p>Найдено результатов: <strong>{{ num_results }}</strong> по запросу "{{ query }}"</p>
+    </div>
+
+    <div class="results-list">
+        {% for result in results %}
+        <div class="result-item" style="--rank: {{ forloop.counter }}">
+            <div class="result-header">
+                <span class="result-rank">#{{ forloop.counter }}</span>
+                <span class="result-score">Оценка: {{ result.score }}</span>
+            </div>
+            
+            <h3 class="result-title">
+                <a href="{{ result.url }}" target="_blank" rel="noopener noreferrer">
+                    Документ {{ result.doc_id }}
+                </a>
+            </h3>
+            
+            {% if result.url %}
+            <p class="result-url">
+                <a href="{{ result.url }}" target="_blank" rel="noopener noreferrer">
+                    {{ result.url|truncatechars:80 }}
+                </a>
+            </p>
+            {% endif %}
+            
+            <div class="result-meta">
+                {% if result.matching_terms %}
+                <div class="matching-terms">
+                    <span class="label">Совпадения:</span>
+                    <span class="terms">{{ result.matching_terms|join:", " }}</span>
+                </div>
+                {% endif %}
+                
+                {% if result.top_lemmas %}
+                <div class="top-lemmas">
+                    <span class="label">Ключевые слова:</span>
+                    <span class="terms">{{ result.top_lemmas|join:", " }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="no-results">
+        <p>По запросу "{{ query }}" ничего не найдено</p>
+    </div>
+{% endif %}
