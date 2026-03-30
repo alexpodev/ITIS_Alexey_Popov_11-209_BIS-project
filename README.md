@@ -196,6 +196,52 @@ Search> (конкурс AND грант) OR (президент AND россий�
 Search> quit
 ```
 
+### Vector Search
+
+Run the vector search engine:
+
+```bash
+python3 vector_search.py
+```
+
+The vector search engine uses TF-IDF vectors and cosine similarity to rank documents by relevance to the query.
+
+**Features:**
+
+- **Semantic ranking**: Documents are ranked by similarity score (0-1), not just binary match
+- **Query lemmatization**: Query terms are automatically lemmatized for better matching
+- **Highlighting**: Shows which query terms matched in each document
+- **Top lemmas preview**: Displays most important terms in each document
+
+**Commands:**
+
+| Command         | Description            |
+| --------------- | ---------------------- |
+| `<query>`       | Search for documents   |
+| `quit` / `exit` | Exit the search engine |
+
+**Example queries:**
+
+```
+Search> конкурс грант
+Search> университет наука
+Search> студент конференция
+Search> quit
+```
+
+**Output format:**
+
+```
+Found 10 result(s):
+
+======================================================================
+
+1. Document 1 (Score: 0.1390)
+   Matching query terms: конкурс, грант
+   Top lemmas: гир, гражданство, грантыпрезидент, итоговый, ...
+----------------------------------------------------------------------
+```
+
 ### TF-IDF
 
 Run the TF-IDF computation:
@@ -271,7 +317,8 @@ project/
 ├── crawler.py                 # Main crawler script
 ├── lemmatizator.py            # Text processing and lemmatization script
 ├── inv_term.py                # Inverted index builder
-└── boolean_search.py          # Boolean search engine
+├── boolean_search.py          # Boolean search engine
+└── vector_search.py           # Vector search engine (TF-IDF + cosine similarity)
 ```
 
 ### Index File Format
