@@ -65,12 +65,14 @@ This crawler automatically navigates through the KPFU Media news section, collec
 
 ## Requirements
 
-- Python 3.6 or higher
+- Python 3.10 or higher
 - Required packages:
     - `requests`
     - `beautifulsoup4`
     - `pymorphy3` (for lemmatization)
     - `nltk` (for stop words)
+    - `Django` (for web interface)
+    - `django-htmx` (for dynamic web search)
 
 ## Installation
 
@@ -242,6 +244,60 @@ Found 10 result(s):
 ----------------------------------------------------------------------
 ```
 
+### Web Interface (Django + htmx)
+
+The search engine includes a modern web interface built with Django and htmx for dynamic search results.
+
+**Start the web server:**
+
+```bash
+cd search_engine
+source ../venv/bin/activate
+python manage.py runserver 0.0.0.0:8000
+```
+
+Then open in browser: **http://localhost:8000**
+
+**Features:**
+
+- **Real-time search**: Results load dynamically without page refresh using htmx
+- **Ranking**: Documents ranked by TF-IDF cosine similarity score
+- **Top 10 results**: Displays the 10 most relevant documents
+- **Modern UI**: Clean, responsive design with animations
+- **URL links**: Direct links to source documents
+- **Matching highlights**: Shows which query terms matched
+- **Key lemmas**: Displays top keywords for each document
+
+**API Endpoint:**
+
+```bash
+GET /api/search/?q=<query>
+```
+
+Example:
+
+```bash
+curl "http://localhost:8000/api/search/?q=конкурс"
+```
+
+Response:
+
+```json
+{
+    "query": "конкурс",
+    "total_results": 10,
+    "results": [
+        {
+            "doc_id": 1,
+            "score": 0.0803,
+            "matching_terms": ["конкурс"],
+            "top_lemmas": [...],
+            "url": "https://media.kpfu.ru/news/..."
+        }
+    ]
+}
+```
+
 ### TF-IDF
 
 Run the TF-IDF computation:
@@ -318,7 +374,19 @@ project/
 ├── lemmatizator.py            # Text processing and lemmatization script
 ├── inv_term.py                # Inverted index builder
 ├── boolean_search.py          # Boolean search engine
-└── vector_search.py           # Vector search engine (TF-IDF + cosine similarity)
+├── vector_search.py           # Vector search engine (TF-IDF + cosine similarity)
+└── search_engine/             # Web interface (Django + htmx)
+    ├── manage.py              # Django management script
+    ├── search_engine/         # Django project settings
+    │   ├── settings.py
+    │   ├── urls.py
+    │   ├── wsgi.py
+    │   └── asgi.py
+    └── search/                # Search app
+        ├── views.py           # Search views
+        ├── urls.py            # App URLs
+        ├── templates/         # HTML templates
+        └── static/            # CSS and JavaScript
 ```
 
 ### Index File Format

@@ -99,7 +99,6 @@ def main():
     searcher = BooleanSearch(index_file)
     
     print("Boolean Search Engine")
-    print("=" * 50)
     print("Operators: AND, OR, NOT")
     print("Use parentheses for complex queries")
     print("Type 'quit' to exit\n")
