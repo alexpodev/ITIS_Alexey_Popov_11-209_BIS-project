@@ -65,8 +65,8 @@ def compute_idf(documents):
     
     idf = {}
     for term, df in doc_freq.items():
-        idf[term] = math.log(num_docs / df)
-    
+        idf[term] = math.log(1 + num_docs / df)
+
     return idf
 
 

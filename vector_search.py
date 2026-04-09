@@ -67,6 +67,17 @@ class VectorSearchEngine:
 
         return dot_product / (query_norm * doc_norm)
 
+    def _fallback_match(self, query_terms):
+        scores = []
+        for doc_id, doc_lemmas in self.documents.items():
+            doc_lemma_set = set(doc_lemmas)
+            match_count = sum(1 for term in query_terms if term in doc_lemma_set)
+            if match_count > 0:
+                score = match_count / len(query_terms)
+                scores.append((doc_id, score, doc_lemmas))
+        scores.sort(key=lambda x: x[1], reverse=True)
+        return scores
+
     def _build_query_vector(self, query_terms):
         if not query_terms:
             return {}
@@ -89,9 +100,9 @@ class VectorSearchEngine:
             tf = count / total_query_terms
             df = doc_freq.get(term, 0)
             if df > 0:
-                idf = math.log(num_docs / df)
+                idf = math.log(1 + num_docs / df)
             else:
-                idf = math.log(num_docs)
+                idf = math.log(1 + num_docs)
             query_vector[term] = tf * idf
 
         return query_vector
@@ -118,7 +129,7 @@ class VectorSearchEngine:
         query_norm = self._compute_vector_norm(query_vector)
 
         if query_norm == 0:
-            return []
+            return self._fallback_match(lemmas)[:top_k]
 
         scores = []
         for doc_id, doc_tfidf in self.tfidf_vectors.items():
@@ -136,7 +147,17 @@ class VectorSearchEngine:
         query_norm = self._compute_vector_norm(query_vector)
 
         if query_norm == 0:
-            return []
+            fallback_results = self._fallback_match(lemmas)[:top_k]
+            results = []
+            for doc_id, score, doc_lemmas in fallback_results:
+                results.append({
+                    'doc_id': doc_id,
+                    'score': score,
+                    'matching_terms': [t for t in lemmas if t in set(doc_lemmas)],
+                    'top_lemmas': sorted(set(doc_lemmas))[:10],
+                    'all_lemmas': doc_lemmas
+                })
+            return results
 
         results = []
         for doc_id, doc_tfidf in self.tfidf_vectors.items():

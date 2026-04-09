@@ -19,7 +19,6 @@ search_engine = VectorSearchEngine(lemmas_dir, tfidf_lemmas_dir, index_file)
 
 
 def index(request):
-    """Main search page."""
     return render(request, 'search/index.html', {
         'num_docs': len(search_engine.documents),
         'num_vectors': len(search_engine.tfidf_vectors),
@@ -27,7 +26,6 @@ def index(request):
 
 
 def search_results(request):
-    """Search results partial for HTMX."""
     query = request.GET.get('q', '').strip()
     
     if not query:
@@ -56,7 +54,6 @@ def search_results(request):
 
 
 def api_search(request):
-    """API endpoint for search queries."""
     query = request.GET.get('q', '').strip()
     
     if not query:
